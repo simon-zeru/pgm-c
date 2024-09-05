@@ -44,6 +44,19 @@ void pgm_threshold(pgm_t_pixel *pixels, int width, int height, pgm_t_pixel pgm_t
     }
 }
 
+void pgm_gradient(pgm_t_pixel *pixels, int width, int height, pgm_t_pixel from, pgm_t_pixel to) {
+    if ( (from < 0 || from > 255) || (to < 0 || to > 255) ) {
+        return EXIT_FAILURE;
+    }
+    for (size_t i = 0; i < height; i++)
+    {
+        for (size_t j = 0; j < width; j++)
+        {
+            pixels[i * width + j] = j;
+        }
+    }
+}
+
 int main(void) {
     size_t largeur = 400;
     size_t hauteur = 534;
@@ -61,7 +74,10 @@ int main(void) {
     pgm_naivewrite("guadalest-negative.pgm", vecteurPixel, largeur, hauteur);
     pgm_threshold(vecteurPixel, largeur, hauteur, 200);
     pgm_naivewrite("guadalest-negative-threshold.pgm", vecteurPixel, largeur, hauteur);
+    pgm_gradient(vecteurPixel, largeur, hauteur, 128, 175);
+    pgm_naivewrite("guadalest-gradient.pgm", vecteurPixel, largeur, hauteur);
     free(vecteurPixel);
+    pgm_show("guadalest-gradient.pgm");
     pgm_show("guadalest-negative.pgm");
     pgm_show("guadalest-negative-threshold.pgm");
     pgm_show("guadalest.pgm");
