@@ -15,7 +15,7 @@ void pgm_show(char *filename) {
 }
 
 pgm_t_pixel *pgm_malloc(int width, int height) {
-    size_t size = width * height * sizeof(pgm_t_pixel);
+    size_t size = width * height;
     pgm_t_pixel *vPixel = (pgm_t_pixel *)malloc(size);
     if (vPixel == NULL) {
         return NULL;
@@ -29,44 +29,44 @@ void pgm_solid(pgm_t_pixel *pixels, int width, int height, pgm_t_pixel color) {
     }
 }
 
+void pgm_negative(pgm_t_pixel *pixels, int width, int height) {
+    for (int i = 0; i < (width * height); i++) {
+        pixels[i] = 255 - pixels[i];
+    }
+}
+
+void pgm_threshold(pgm_t_pixel *pixels, int width, int height, pgm_t_pixel pgm_threshold) {
+    if ( pgm_threshold < 0 || pgm_threshold > 255 ) {
+        return EXIT_FAILURE;
+    }
+    for (int i = 0; i < (width * height); i++) {
+        pixels[i] = pixels[i] < pgm_threshold ? 0 : 255;
+    }
+}
+
 int main(void) {
     size_t largeur = 400;
     size_t hauteur = 534;
 
     // allocation mémoire du vecteur de pixels
-    pgm_t_pixel* vecteurPixel = pgm_malloc(largeur, hauteur);
-
-    pgm_t_pixel gray = "G";
-
-    // initialisation du vecteur avec du gris
-    pgm_solid(vecteurPixel, largeur, hauteur, gray);
-
-    // écriture de l'image
-    pgm_naivewrite("image-couleur-unie.pgm", vecteurPixel, 400, 534);
-
-    // libération de la mémoire allouée par le vecteur
-    free(vecteurPixel);
-
-    // affichage de la mémoire
-    pgm_show("image-couleur-unie.pgm");
-
-    // vérification de fuite mémoire : valgrind --leak-check=full ./traitement-image
-    
+    pgm_t_pixel* vecteurPixel;
 
     // lecture de l'image format pgm
-    // vecteurPixel = pgm_naiveread("guadalest.pgm", &largeur, &hauteur);
+    vecteurPixel = pgm_naiveread("guadalest.pgm", &largeur, &hauteur);
 
-    // if (vecteurPixel == NULL) {
-    //     return EXIT_FAILURE;
-    // }
+    if (vecteurPixel == NULL) {
+        return EXIT_FAILURE;
+    }
+    pgm_negative(vecteurPixel, largeur, hauteur);
+    pgm_naivewrite("guadalest-negative.pgm", vecteurPixel, largeur, hauteur);
+    pgm_threshold(vecteurPixel, largeur, hauteur, 200);
+    pgm_naivewrite("guadalest-negative-threshold.pgm", vecteurPixel, largeur, hauteur);
+    free(vecteurPixel);
+    pgm_show("guadalest-negative.pgm");
+    pgm_show("guadalest-negative-threshold.pgm");
+    pgm_show("guadalest.pgm");
 
-    // écriture de la copie
-    // pgm_naivewrite("guadalest_copie.pgm", vecteurPixel, largeur, hauteur);
-
-    // liberation de la memoire
-    // free(vecteurPixel);
-
-    // pgm_show("guadalest.pgm");
+    // vérification de fuite mémoire : valgrind --leak-check=full ./traitement-image
 
     return EXIT_SUCCESS;
 }
